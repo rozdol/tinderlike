@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Quick Fix for Python Command Issue
+# Simple Fix Script - No Virtual Environment Activation Issues
 # Run this on your EC2 instance
 
 set -e
 
-echo "🔧 Quick fix for Python command issue..."
+echo "🔧 Simple fix for Python and pip issues..."
 
 # Navigate to project directory
 cd /var/www/tinderlike
@@ -16,33 +16,18 @@ if [ ! -d "venv" ]; then
     python3.12 -m venv venv
 fi
 
-# Activate virtual environment
-echo "🔧 Activating virtual environment..."
-source venv/bin/activate
-
-# Verify we're using the right Python
-echo "🐍 Checking Python in virtual environment..."
-which python
-which pip
-ls -la venv/bin/python*
-
-# Create symlink if needed
-if [ ! -f "venv/bin/python" ] && [ -f "venv/bin/python3" ]; then
-    echo "🔗 Creating python symlink..."
-    ln -sf venv/bin/python3 venv/bin/python
-fi
-
-# Install dependencies using venv pip
+# Install dependencies using full path (no activation needed)
 echo "📦 Installing dependencies..."
+./venv/bin/pip install --upgrade pip
 ./venv/bin/pip install -r requirements.txt
 
-# Check if backend can start
+# Test if backend can start
 echo "🚀 Testing backend startup..."
-python3 -c "import uvicorn; print('✅ uvicorn available')" || echo "❌ uvicorn not available"
+./venv/bin/python3 -c "import uvicorn; print('✅ uvicorn available')" || echo "❌ uvicorn not available"
 
 # Try to start backend
 echo "📝 Starting backend..."
-python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+./venv/bin/python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
 
 # Wait a moment

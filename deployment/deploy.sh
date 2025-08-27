@@ -92,8 +92,8 @@ source venv/bin/activate
 
 # Install Python dependencies
 echo "📦 Installing Python dependencies..."
-pip install --upgrade pip
-pip install -r requirements.txt
+./venv/bin/pip install --upgrade pip
+./venv/bin/pip install -r requirements.txt
 
 # Check if .env file exists, if not create from example
 if [ ! -f ".env" ]; then
