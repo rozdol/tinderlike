@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Offers</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Auth Screens -->
+        <div id="auth-container" class="auth-container hidden">
+            <!-- Login Screen -->
+            <div id="login-screen" class="auth-screen">
+                <div class="auth-header">
+                    <h1><i class="fas fa-gift"></i> Flash Offers</h1>
+                    <p>Swipe through amazing deals and promotions</p>
+                </div>
+                
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <input type="email" id="login-email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="login-password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                
+                <div class="oauth-buttons">
+                    <button class="btn btn-google" onclick="loginWithGoogle()">
+                        <i class="fab fa-google"></i> Continue with Google
+                    </button>
+                    <button class="btn btn-apple" onclick="loginWithApple()">
+                        <i class="fab fa-apple"></i> Continue with Apple
+                    </button>
+                </div>
+                
+                <p class="auth-switch">
+                    Don't have an account? <a href="#" onclick="showRegister()">Sign up</a>
+                </p>
+            </div>
+
+            <!-- Register Screen -->
+            <div id="register-screen" class="auth-screen hidden">
+                <div class="auth-header">
+                    <h1><i class="fas fa-gift"></i> Join TinderLike Offers</h1>
+                    <p>Start discovering amazing deals</p>
+                </div>
+                
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <input type="text" id="register-fullname" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="register-email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="register-phone" placeholder="Phone Number" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="register-username" placeholder="Username (optional)">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </form>
+                
+                <p class="auth-switch">
+                    Already have an account? <a href="#" onclick="showLogin()">Login</a>
+                </p>
+            </div>
+
+            <!-- Verification Screen -->
+            <div id="verification-screen" class="auth-screen hidden">
+                <div class="auth-header">
+                    <h1><i class="fas fa-shield-alt"></i> Verify Your Account</h1>
+                    <p>Enter the verification code sent to your email and phone</p>
+                </div>
+                
+                <form id="verification-form" class="auth-form">
+                    <div class="form-group">
+                        <input type="text" id="verification-code" placeholder="Verification Code" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Verify Account</button>
+                </form>
+                
+                <button class="btn btn-secondary" onclick="resendVerification()">Resend Code</button>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="main-app hidden">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-content">
+                    <h1><i class="fas fa-gift"></i> Offers</h1>
+                    <div class="header-actions">
+                        <button class="btn-icon" onclick="showNotifications()">
+                            <i class="fas fa-bell"></i>
+                            <span id="notification-badge" class="notification-badge hidden">0</span>
+                        </button>
+                        <button class="btn-icon" onclick="showProfile()">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="btn-icon" onclick="logout()" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                        <button class="btn-icon" id="admin-btn" onclick="goToAdmin()" title="Admin Dashboard" style="display: none; background: #667eea; color: white;">
+                            <i class="fas fa-shield-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Swipe Area -->
+                <div id="swipe-area" class="swipe-area">
+                    <div id="offer-card" class="offer-card">
+                        <div class="offer-image">
+                            <img id="offer-image" src="" alt="Offer">
+                            <div class="offer-expiry">
+                                
+                                <span id="offer-expiry"> <i class="fas fa-clock"></i> Loading...</span>
+                            </div>
+                        </div>
+                        <div class="offer-content">
+                            <h3 id="offer-title">Loading...</h3>
+                            <p id="offer-description">Loading offer details...</p>
+                            <div class="offer-details">
+                                <span class="offer-provider" id="offer-provider">Provider</span>
+                                <span class="offer-category" id="offer-category">Category</span>
+                            </div>
+                            <div class="offer-discount" id="offer-discount">
+                                <span class="discount-text">Discount</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Swipe Buttons -->
+                    <div class="swipe-buttons">
+                        <button class="btn-swipe btn-dislike" onclick="swipeOffer('dislike')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <button class="btn-swipe btn-like" onclick="swipeOffer('like')">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- No More Offers -->
+                <div id="no-offers" class="no-offers hidden">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No More Offers</h3>
+                    <p>Check back later for new deals!</p>
+                </div>
+            </main>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-item active" onclick="showOffers()">
+                    <i class="fas fa-gift"></i>
+                    <span>Offers</span>
+                </button>
+                <button class="nav-item" onclick="showLiked()">
+                    <i class="fas fa-heart"></i>
+                    <span>Liked</span>
+                    <span id="liked-count-badge" class="nav-badge hidden">0</span>
+                </button>
+                <button class="nav-item" onclick="showProfile()">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Modals -->
+        <div id="modal-overlay" class="modal-overlay hidden"></div>
+        
+        <!-- Liked Offers Modal -->
+        <div id="liked-modal" class="modal hidden">
+            <div class="modal-header">
+                <h2>Liked Offers</h2>
+                <button class="btn-close" onclick="closeModal('liked-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div id="liked-offers-list" class="offers-list">
+                    <!-- Liked offers will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Modal -->
+        <div id="profile-modal" class="modal hidden">
+            <div class="modal-header">
+                <h2><i class="fas fa-user"></i> Profile Settings</h2>
+                <button class="btn-close" onclick="closeModal('profile-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <!-- User Info Section -->
+                <div class="profile-section">
+                    <h3><i class="fas fa-info-circle"></i> Personal Information</h3>
+                    <form id="profile-form" class="profile-form">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Full Name</label>
+                            <input type="text" id="profile-fullname" placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-at"></i> Username</label>
+                            <input type="text" id="profile-username" placeholder="Choose a username">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email Address</label>
+                            <input type="email" id="profile-email" readonly>
+                            <small class="form-help">Email cannot be changed</small>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Phone Number</label>
+                            <input type="tel" id="profile-phone" readonly>
+                            <small class="form-help">Phone cannot be changed</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Notification Settings Section -->
+                <div class="profile-section">
+                    <h3><i class="fas fa-bell"></i> Notification Preferences</h3>
+                    <p class="section-description">Choose how you want to be notified about offer expirations</p>
+                    
+                    <div class="notification-settings">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="notify-email">
+                            <span class="checkbox-icon"><i class="fas fa-envelope"></i></span>
+                            <div class="checkbox-content">
+                                <span class="checkbox-title">Email Notifications</span>
+                                <span class="checkbox-description">Receive notifications via email</span>
+                            </div>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="notify-sms">
+                            <span class="checkbox-icon"><i class="fas fa-sms"></i></span>
+                            <div class="checkbox-content">
+                                <span class="checkbox-title">SMS Notifications</span>
+                                <span class="checkbox-description">Receive notifications via SMS</span>
+                            </div>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="notify-whatsapp">
+                            <span class="checkbox-icon"><i class="fab fa-whatsapp"></i></span>
+                            <div class="checkbox-content">
+                                <span class="checkbox-title">WhatsApp Notifications</span>
+                                <span class="checkbox-description">Receive notifications via WhatsApp</span>
+                            </div>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="notify-telegram">
+                            <span class="checkbox-icon"><i class="fab fa-telegram-plane"></i></span>
+                            <div class="checkbox-content">
+                                <span class="checkbox-title">Telegram Notifications</span>
+                                <span class="checkbox-description">Receive notifications via Telegram</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Account Status Section -->
+                <div class="profile-section">
+                    <h3><i class="fas fa-shield-alt"></i> Account Status</h3>
+                    <div class="status-indicators">
+                        <div class="status-item">
+                            <span class="status-icon" id="email-status-icon">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <div class="status-content">
+                                <span class="status-title">Email Verification</span>
+                                <span class="status-value" id="email-status">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-icon" id="phone-status-icon">
+                                <i class="fas fa-phone"></i>
+                            </span>
+                            <div class="status-content">
+                                <span class="status-title">Phone Verification</span>
+                                <span class="status-value" id="phone-status">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Actions -->
+                <div class="profile-actions">
+                    <button class="btn btn-secondary" onclick="showAccountInfo()">
+                        <i class="fas fa-info-circle"></i> Account Info
+                    </button>
+                    <button class="btn btn-danger" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Modal -->
+        <div id="notifications-modal" class="modal hidden">
+            <div class="modal-header">
+                <h2>Notifications</h2>
+                <button class="btn-close" onclick="closeModal('notifications-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div id="notifications-list" class="notifications-list">
+                    <!-- Notifications will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Offer Details Modal -->
+        <div id="offer-details-modal" class="modal hidden">
+            <div class="modal-header">
+                <h2>Offer Details</h2>
+                <button class="btn-close" onclick="closeModal('offer-details-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div id="offer-details-content">
+                    <!-- Offer details will be loaded here -->
+                </div>
+                <div class="offer-actions">
+                    <button class="btn btn-primary" onclick="useOffer()">Use Offer</button>
+                    <button class="btn btn-secondary" onclick="copyPromoCode()">Copy Code</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
