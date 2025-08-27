@@ -288,8 +288,9 @@ async def get_admin_stats(
     total_offers = db.query(func.count(Offer.id)).scalar()
     total_likes = db.query(func.count(UserLike.id)).filter(UserLike.action == "like").scalar()
     total_dislikes = db.query(func.count(UserLike.id)).filter(UserLike.action == "dislike").scalar()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)  # Convert to naive datetime for DB comparison
     active_offers = db.query(func.count(Offer.id)).filter(
-        and_(Offer.is_active == True, Offer.expiry_date > datetime.now(timezone.utc))
+        and_(Offer.is_active == True, Offer.expiry_date > now)
     ).scalar()
     verified_users = db.query(func.count(User.id)).filter(User.is_verified == True).scalar()
     admin_users = db.query(func.count(User.id)).filter(User.is_admin == True).scalar()
@@ -308,6 +309,11 @@ async def get_admin_stats(
 def calculate_time_until_expiry(expiry_date: datetime) -> str:
     """Calculate time until expiry in human readable format"""
     now = datetime.now(timezone.utc)
+    
+    # Ensure expiry_date is timezone-aware
+    if expiry_date.tzinfo is None:
+        expiry_date = expiry_date.replace(tzinfo=timezone.utc)
+    
     if expiry_date <= now:
         return "Expired"
     
