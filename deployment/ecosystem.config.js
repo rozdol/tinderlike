@@ -4,7 +4,7 @@ module.exports = {
       name: 'tinderlike-backend',
       script: 'run.py',
       cwd: '/var/www/tinderlike',
-      interpreter: '/var/www/tinderlike/venv/bin/python',
+      interpreter: '/var/www/tinderlike/venv/bin/python3',
       instances: 1,
       autorestart: true,
       watch: false,

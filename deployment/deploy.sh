@@ -130,7 +130,7 @@ fi
 
 # Seed database with initial data
 echo "🌱 Seeding database..."
-python scripts/seed_data.py
+python3 scripts/seed_data.py
 
 # Set up Nginx configuration
 echo "🌐 Setting up Nginx..."
