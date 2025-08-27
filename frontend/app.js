@@ -37,6 +37,9 @@ function setupEventListeners() {
     document.getElementById('register-form').addEventListener('submit', handleRegister);
     document.getElementById('verification-form').addEventListener('submit', handleVerification);
     document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
+    
+    // Setup swipe gestures when main app is shown
+    setupSwipeGestures();
 }
 
 // Auth Functions
@@ -368,17 +371,19 @@ async function swipeOffer(action) {
     // Add visual feedback immediately
     const offerCard = document.getElementById('offer-card');
     const swipeButtons = document.querySelector('.swipe-buttons');
+    const likeButton = document.querySelector('.btn-like');
+    const dislikeButton = document.querySelector('.btn-dislike');
     
     // Disable buttons during swipe
     swipeButtons.style.pointerEvents = 'none';
     
-    // Add swipe animation
+    // Add button press animation
     if (action === 'like') {
-        offerCard.style.transform = 'translateX(100px) rotate(15deg)';
-        offerCard.style.opacity = '0';
+        likeButton.classList.add('like-pressed');
+        offerCard.classList.add('swipe-right');
     } else {
-        offerCard.style.transform = 'translateX(-100px) rotate(-15deg)';
-        offerCard.style.opacity = '0';
+        dislikeButton.classList.add('dislike-pressed');
+        offerCard.classList.add('swipe-left');
     }
     
     try {
@@ -399,31 +404,34 @@ async function swipeOffer(action) {
                 await loadLikedOffers();
             }
             
-            // Wait a bit for the animation to complete, then load next offer
+            // Wait for the animation to complete, then load next offer
             setTimeout(() => {
-                // Reset card position
-                offerCard.style.transform = '';
-                offerCard.style.opacity = '';
+                // Reset card classes and button states
+                offerCard.classList.remove('swipe-right', 'swipe-left');
+                likeButton.classList.remove('like-pressed');
+                dislikeButton.classList.remove('dislike-pressed');
                 swipeButtons.style.pointerEvents = '';
                 
                 // Load next offer
                 loadNextOffer();
-            }, 300);
+            }, 500);
         } else {
             const error = await response.json();
             showError(error.detail || 'Failed to swipe offer');
             
-            // Reset card position on error
-            offerCard.style.transform = '';
-            offerCard.style.opacity = '';
+            // Reset card classes and button states on error
+            offerCard.classList.remove('swipe-right', 'swipe-left');
+            likeButton.classList.remove('like-pressed');
+            dislikeButton.classList.remove('dislike-pressed');
             swipeButtons.style.pointerEvents = '';
         }
     } catch (error) {
         showError('Network error. Please try again.');
         
-        // Reset card position on error
-        offerCard.style.transform = '';
-        offerCard.style.opacity = '';
+        // Reset card classes and button states on error
+        offerCard.classList.remove('swipe-right', 'swipe-left');
+        likeButton.classList.remove('like-pressed');
+        dislikeButton.classList.remove('dislike-pressed');
         swipeButtons.style.pointerEvents = '';
     }
 }
@@ -661,6 +669,9 @@ function showMainApp() {
             adminBtn.style.display = 'block';
         }
     }
+    
+    // Setup swipe gestures
+    setupSwipeGestures();
 }
 
 function showLoading() {
@@ -923,3 +934,166 @@ document.querySelectorAll('.modal').forEach(modal => {
         e.stopPropagation();
     });
 });
+
+// Advanced Swipe Gesture Support
+function setupSwipeGestures() {
+    const offerCard = document.getElementById('offer-card');
+    if (!offerCard) return;
+    
+    let startX = 0;
+    let startY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let isDragging = false;
+    let startTime = 0;
+    
+    // Touch events for mobile
+    offerCard.addEventListener('touchstart', handleTouchStart, { passive: false });
+    offerCard.addEventListener('touchmove', handleTouchMove, { passive: false });
+    offerCard.addEventListener('touchend', handleTouchEnd, { passive: false });
+    
+    // Mouse events for desktop
+    offerCard.addEventListener('mousedown', handleMouseStart);
+    offerCard.addEventListener('mousemove', handleMouseMove);
+    offerCard.addEventListener('mouseup', handleMouseEnd);
+    offerCard.addEventListener('mouseleave', handleMouseEnd);
+    
+    function handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        startTime = Date.now();
+        isDragging = true;
+        offerCard.classList.add('swiping');
+    }
+    
+    function handleTouchMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        currentX = touch.clientX;
+        currentY = touch.clientY;
+        
+        const deltaX = currentX - startX;
+        const deltaY = currentY - startY;
+        
+        // Only allow horizontal swipes
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            const rotation = deltaX * 0.1;
+            const scale = 1 - Math.abs(deltaX) * 0.001;
+            offerCard.style.transform = `translateX(${deltaX}px) rotate(${rotation}deg) scale(${scale})`;
+            
+            // Show swipe indicators
+            showSwipeIndicator(deltaX);
+        }
+    }
+    
+    function handleTouchEnd(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        const deltaX = currentX - startX;
+        const deltaY = currentY - startY;
+        const deltaTime = Date.now() - startTime;
+        const velocity = Math.abs(deltaX) / deltaTime;
+        
+        // Determine if it's a valid swipe
+        const isSwipe = Math.abs(deltaX) > 50 || velocity > 0.5;
+        const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
+        
+        if (isSwipe && isHorizontal) {
+            if (deltaX > 0) {
+                swipeOffer('like');
+            } else {
+                swipeOffer('dislike');
+            }
+        } else {
+            // Reset card position
+            offerCard.style.transform = '';
+            offerCard.classList.remove('swiping');
+            hideSwipeIndicators();
+        }
+        
+        isDragging = false;
+    }
+    
+    function handleMouseStart(e) {
+        e.preventDefault();
+        startX = e.clientX;
+        startY = e.clientY;
+        startTime = Date.now();
+        isDragging = true;
+        offerCard.classList.add('swiping');
+    }
+    
+    function handleMouseMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        currentX = e.clientX;
+        currentY = e.clientY;
+        
+        const deltaX = currentX - startX;
+        const deltaY = currentY - startY;
+        
+        // Only allow horizontal swipes
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            const rotation = deltaX * 0.1;
+            const scale = 1 - Math.abs(deltaX) * 0.001;
+            offerCard.style.transform = `translateX(${deltaX}px) rotate(${rotation}deg) scale(${scale})`;
+            
+            // Show swipe indicators
+            showSwipeIndicator(deltaX);
+        }
+    }
+    
+    function handleMouseEnd(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        const deltaX = currentX - startX;
+        const deltaY = currentY - startY;
+        const deltaTime = Date.now() - startTime;
+        const velocity = Math.abs(deltaX) / deltaTime;
+        
+        // Determine if it's a valid swipe
+        const isSwipe = Math.abs(deltaX) > 50 || velocity > 0.5;
+        const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
+        
+        if (isSwipe && isHorizontal) {
+            if (deltaX > 0) {
+                swipeOffer('like');
+            } else {
+                swipeOffer('dislike');
+            }
+        } else {
+            // Reset card position
+            offerCard.style.transform = '';
+            offerCard.classList.remove('swiping');
+            hideSwipeIndicators();
+        }
+        
+        isDragging = false;
+    }
+    
+    function showSwipeIndicator(deltaX) {
+        const likeIndicator = document.querySelector('.swipe-indicator.like');
+        const dislikeIndicator = document.querySelector('.swipe-indicator.dislike');
+        
+        if (deltaX > 30 && likeIndicator) {
+            likeIndicator.classList.add('show');
+            dislikeIndicator?.classList.remove('show');
+        } else if (deltaX < -30 && dislikeIndicator) {
+            dislikeIndicator.classList.add('show');
+            likeIndicator?.classList.remove('show');
+        } else {
+            hideSwipeIndicators();
+        }
+    }
+    
+    function hideSwipeIndicators() {
+        document.querySelectorAll('.swipe-indicator').forEach(indicator => {
+            indicator.classList.remove('show');
+        });
+    }
+}

@@ -5,6 +5,143 @@
     box-sizing: border-box;
 }
 
+/* Advanced Swipe Animations */
+@keyframes swipeRight {
+    0% {
+        transform: translateX(0) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(50px) rotate(8deg) scale(1.05);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateX(120px) rotate(15deg) scale(0.9);
+        opacity: 0;
+    }
+}
+
+@keyframes swipeLeft {
+    0% {
+        transform: translateX(0) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(-50px) rotate(-8deg) scale(1.05);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateX(-120px) rotate(-15deg) scale(0.9);
+        opacity: 0;
+    }
+}
+
+@keyframes cardBounce {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes likePulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+}
+
+@keyframes dislikePulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(244, 67, 54, 0.6);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+    }
+}
+
+@keyframes cardSlideIn {
+    0% {
+        transform: translateY(50px) scale(0.9);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes buttonPress {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Swipe gesture indicators */
+.swipe-indicator {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.swipe-indicator.like {
+    right: 20px;
+    color: #4CAF50;
+    text-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.swipe-indicator.dislike {
+    left: 20px;
+    color: #F44336;
+    text-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+}
+
+.swipe-indicator.show {
+    opacity: 1;
+    animation: cardBounce 0.6s ease;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -243,7 +380,27 @@ body {
     width: 100%;
     max-width: 350px;
     margin-bottom: 30px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    cursor: grab;
+    user-select: none;
+    animation: cardSlideIn 0.6s ease-out;
+}
+
+.offer-card:active {
+    cursor: grabbing;
+}
+
+.offer-card.swiping {
+    transition: none;
+}
+
+.offer-card.swipe-right {
+    animation: swipeRight 0.5s ease-out forwards;
+}
+
+.offer-card.swipe-left {
+    animation: swipeLeft 0.5s ease-out forwards;
 }
 
 .offer-card:hover {
@@ -397,22 +554,57 @@ body {
     border-radius: 50%;
     font-size: 24px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
 }
 
 .btn-dislike {
-    background: #ff4757;
+    background: linear-gradient(135deg, #ff4757, #ff3742);
     color: white;
 }
 
 .btn-like {
-    background: #2ed573;
+    background: linear-gradient(135deg, #2ed573, #1dd1a1);
     color: white;
 }
 
 .btn-swipe:hover {
     transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.btn-swipe:active {
+    animation: buttonPress 0.2s ease;
+}
+
+.btn-swipe.like-pressed {
+    animation: likePulse 0.6s ease;
+}
+
+.btn-swipe.dislike-pressed {
+    animation: dislikePulse 0.6s ease;
+}
+
+/* Ripple effect for buttons */
+.btn-swipe::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-swipe:active::before {
+    width: 100px;
+    height: 100px;
+    animation: ripple 0.6s ease;
 }
 
 .btn-swipe:disabled {

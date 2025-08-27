@@ -355,7 +355,7 @@ For support and questions:
 
 ## Roadmap
 
-- [ ] Advanced swipe animations
+- [x] Advanced swipe animations
 - [ ] Push notifications
 - [ ] Offer categories and filtering
 - [ ] User preferences and recommendations
