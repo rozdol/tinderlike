@@ -1,5 +1,5 @@
-// Admin Dashboard JavaScript
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+// Admin Dashboard JavaScript - now using config.js
+const API_BASE_URL = config.API_BASE_URL;
 let currentAdmin = null;
 let editingOfferId = null;
 
