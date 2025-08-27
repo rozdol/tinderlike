@@ -16,3 +16,4 @@ twilio==8.10.0
 gunicorn==21.2.0
 redis==5.0.1
 celery==5.3.4
+pydantic[email]
