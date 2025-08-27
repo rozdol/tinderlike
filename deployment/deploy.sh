@@ -112,7 +112,21 @@ fi
 
 # Run database migrations
 echo "🗄️ Running database migrations..."
-alembic upgrade head
+
+# Check if there are any existing migration files
+if [ -z "$(ls -A alembic/versions/ 2>/dev/null)" ]; then
+    echo "📝 No migration files found. Creating initial migration..."
+    alembic revision --autogenerate -m "Initial migration"
+fi
+
+# Try to run migrations, if it fails, clean up and recreate
+if ! alembic upgrade head; then
+    echo "⚠️ Migration failed. Cleaning up and recreating migrations..."
+    rm -f tinderlike.db
+    rm -rf alembic/versions/*
+    alembic revision --autogenerate -m "Initial migration for SQLite"
+    alembic upgrade head
+fi
 
 # Seed database with initial data
 echo "🌱 Seeding database..."

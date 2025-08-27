@@ -242,6 +242,11 @@ ls -la tinderlike.db
 rm tinderlike.db
 alembic upgrade head
 python scripts/seed_data.py
+
+# If migrations fail, use the fix script
+chmod +x deployment/fix-migrations.sh
+./deployment/fix-migrations.sh
+python scripts/seed_data.py
 ```
 
 #### 4. SSL certificate issues
