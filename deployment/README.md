@@ -22,7 +22,7 @@ ssh -i your-key.pem ubuntu@your-ec2-public-ip
 curl -sSL https://raw.githubusercontent.com/your-repo/tinderlike/main/deployment/ec2-setup.sh | bash
 ```
 
-Or manually run these commands:
+**OR** manually run these commands:
 ```bash
 # Update system
 sudo apt-get update && sudo apt-get upgrade -y
@@ -31,7 +31,7 @@ sudo apt-get update && sudo apt-get upgrade -y
 sudo apt-get install -y python3.11 python3.11-venv python3.11-dev python3-pip
 
 # Install Nginx and other dependencies
-sudo apt-get install -y nginx git curl wget unzip
+sudo apt-get install -y nginx git curl wget unzip sqlite3
 
 # Install Node.js
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
@@ -43,6 +43,12 @@ sudo npm install -g pm2
 # Create application directory
 sudo mkdir -p /var/www/tinderlike
 sudo chown $USER:$USER /var/www/tinderlike
+
+# Set up basic firewall
+sudo ufw allow 22/tcp    # SSH
+sudo ufw allow 80/tcp    # HTTP
+sudo ufw allow 443/tcp   # HTTPS
+sudo ufw --force enable
 ```
 
 ## 📦 Step 2: Deploy Your Application
@@ -64,15 +70,26 @@ nano .env
 ```
 
 **Important**: Update these values in `.env`:
-- `SECRET_KEY`: Generate a strong secret key
+- `SECRET_KEY`: Generate a strong secret key (use: `openssl rand -hex 32`)
 - `FRONTEND_URL`: Your EC2 public IP or domain
 - Email/SMS settings if you want notifications
 
 ### 2.3 Run the deployment script
 ```bash
-chmod +x deployment/deploy.sh
+# Make scripts executable
+chmod +x deployment/*.sh
+
+# Run the deployment script
 ./deployment/deploy.sh
 ```
+
+**Note**: The deployment script will:
+- Check and install missing dependencies
+- Create virtual environment
+- Install Python packages
+- Set up database
+- Configure Nginx
+- Start the application with PM2
 
 ## 🌐 Step 3: Configure Domain and SSL (Optional but Recommended)
 
