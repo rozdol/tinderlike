@@ -17,6 +17,11 @@ router = APIRouter(prefix="/offers", tags=["offers"])
 def calculate_time_until_expiry(expiry_date: datetime) -> str:
     """Calculate time until expiry in human readable format"""
     now = datetime.now(timezone.utc)
+    
+    # Ensure expiry_date is timezone-aware
+    if expiry_date.tzinfo is None:
+        expiry_date = expiry_date.replace(tzinfo=timezone.utc)
+    
     if expiry_date <= now:
         return "Expired"
     
@@ -41,10 +46,11 @@ async def get_offers(
 ):
     """Get available offers for swiping"""
     # Get offers that user hasn't liked yet and are still active
+    now = datetime.now(timezone.utc).replace(tzinfo=None)  # Convert to naive datetime for DB comparison
     query = db.query(Offer).filter(
         and_(
             Offer.is_active == True,
-            Offer.expiry_date > datetime.now(timezone.utc),
+            Offer.expiry_date > now,
             not_(
                 Offer.id.in_(
                     db.query(UserLike.offer_id).filter(UserLike.user_id == current_user.id)
@@ -72,10 +78,11 @@ async def get_next_offer(
     db: Session = Depends(get_db)
 ):
     """Get the next offer for swiping"""
+    now = datetime.now(timezone.utc).replace(tzinfo=None)  # Convert to naive datetime for DB comparison
     query = db.query(Offer).filter(
         and_(
             Offer.is_active == True,
-            Offer.expiry_date > datetime.now(timezone.utc),
+            Offer.expiry_date > now,
             not_(
                 Offer.id.in_(
                     db.query(UserLike.offer_id).filter(UserLike.user_id == current_user.id)
@@ -107,11 +114,12 @@ async def swipe_offer(
 ):
     """Swipe on an offer (like or dislike)"""
     # Check if offer exists and is active
+    now = datetime.now(timezone.utc).replace(tzinfo=None)  # Convert to naive datetime for DB comparison
     offer = db.query(Offer).filter(
         and_(
             Offer.id == swipe_data.offer_id,
             Offer.is_active == True,
-            Offer.expiry_date > datetime.now(timezone.utc)
+            Offer.expiry_date > now
         )
     ).first()
     
