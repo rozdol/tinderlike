@@ -18,7 +18,7 @@ This guide will help you deploy your Tinder-like app to an AWS EC2 instance so i
 **Complete commands:**
 ```bash
 # Step 1: Setup EC2
-curl -sSL https://raw.githubusercontent.com/rozdol/tinderlike/refs/heads/main/deployment/deploy.sh | bash
+curl -sSL https://raw.githubusercontent.com/rozdol/tinderlike/refs/heads/main/deployment/ec2-setup.sh | bash
 
 # Step 2: Clone and deploy
 cd /var/www
@@ -32,6 +32,12 @@ chmod +x deployment/*.sh
 # Step 3: Access your app
 # Visit: http://your-ec2-public-ip
 ```
+
+**📋 Supported Ubuntu Versions:**
+- Ubuntu 24.04 (Noble): Uses Python 3.12
+- Ubuntu 22.04 (Jammy): Uses Python 3.11
+- Ubuntu 20.04 (Focal): Uses Python 3.11 (from PPA)
+- Other versions: Uses default Python 3
 
 ## 🔧 Step 1: EC2 Instance Setup
 

@@ -24,11 +24,36 @@ fi
 # Check and install system dependencies if needed
 echo "🔍 Checking system dependencies..."
 
-# Check Python 3.11
+# Check Python 3.11 (or compatible version)
 if ! command -v python3.11 &> /dev/null; then
-    echo "🐍 Installing Python 3.11..."
+    echo "🐍 Installing Python 3.11 (or compatible version)..."
     sudo apt-get update
-    sudo apt-get install -y python3.11 python3.11-venv python3.11-dev python3-pip
+    
+    # Check Ubuntu version and install Python accordingly
+    UBUNTU_VERSION=$(lsb_release -rs)
+    echo "📋 Ubuntu version: $UBUNTU_VERSION"
+    
+    if [[ "$UBUNTU_VERSION" == "24.04" ]]; then
+        echo "📦 Ubuntu 24.04 detected - installing Python 3.12 (latest available)"
+        sudo apt-get install -y python3.12 python3.12-venv python3.12-dev python3-pip
+        # Create symlink for compatibility
+        sudo ln -sf /usr/bin/python3.12 /usr/bin/python3.11
+        sudo ln -sf /usr/bin/python3.12-venv /usr/bin/python3.11-venv
+    elif [[ "$UBUNTU_VERSION" == "22.04" ]]; then
+        echo "📦 Ubuntu 22.04 detected - installing Python 3.11"
+        sudo apt-get install -y python3.11 python3.11-venv python3.11-dev python3-pip
+    elif [[ "$UBUNTU_VERSION" == "20.04" ]]; then
+        echo "📦 Ubuntu 20.04 detected - installing Python 3.11 from deadsnakes PPA"
+        sudo add-apt-repository ppa:deadsnakes/ppa -y
+        sudo apt-get update
+        sudo apt-get install -y python3.11 python3.11-venv python3.11-dev python3-pip
+    else
+        echo "📦 Installing default Python 3"
+        sudo apt-get install -y python3 python3-venv python3-dev python3-pip
+        # Create symlink for compatibility
+        sudo ln -sf /usr/bin/python3 /usr/bin/python3.11
+        sudo ln -sf /usr/bin/python3-venv /usr/bin/python3.11-venv
+    fi
 fi
 
 # Check Nginx
