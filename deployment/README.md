@@ -9,6 +9,30 @@ This guide will help you deploy your Tinder-like app to an AWS EC2 instance so i
 3. **GitHub Repository** with your code
 4. **SSH Access** to your EC2 instance
 
+## 🚀 Quick Start (3 Steps)
+
+1. **Setup EC2**: Run `ec2-setup.sh` to install dependencies
+2. **Clone & Deploy**: Clone your repo and run `deploy.sh`
+3. **Access App**: Visit `http://your-ec2-ip`
+
+**Complete commands:**
+```bash
+# Step 1: Setup EC2
+curl -sSL https://raw.githubusercontent.com/rozdol/tinderlike/refs/heads/main/deployment/deploy.sh | bash
+
+# Step 2: Clone and deploy
+cd /var/www
+git clone https://github.com/rozdol/tinderlike.git tinderlike
+cd tinderlike
+cp deployment/production.env .env
+nano .env  # Edit with your settings
+chmod +x deployment/*.sh
+./deployment/deploy.sh
+
+# Step 3: Access your app
+# Visit: http://your-ec2-public-ip
+```
+
 ## 🔧 Step 1: EC2 Instance Setup
 
 ### 1.1 Connect to your EC2 instance
@@ -19,8 +43,11 @@ ssh -i your-key.pem ubuntu@your-ec2-public-ip
 ### 1.2 Run the setup script
 ```bash
 # Download and run the setup script
-curl -sSL https://raw.githubusercontent.com/your-repo/tinderlike/main/deployment/ec2-setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/rozdol/tinderlike/refs/heads/main/deployment/ec2-setup.sh | bash
 ```
+
+**⚠️ Important**: This script only sets up the EC2 instance with required dependencies. 
+It does NOT deploy your application yet. You need to complete Step 2 to deploy your app.
 
 **OR** manually run these commands:
 ```bash
