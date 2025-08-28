@@ -6,6 +6,7 @@
     <title>Flash Offers</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <div id="app">
@@ -278,6 +279,25 @@
                                 <span class="checkbox-description">Receive notifications via Telegram</span>
                             </div>
                         </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="notify-push">
+                            <span class="checkbox-icon"><i class="fas fa-bell"></i></span>
+                            <div class="checkbox-content">
+                                <span class="checkbox-title">Push Notifications</span>
+                                <span class="checkbox-description">Receive browser push notifications</span>
+                            </div>
+                        </label>
+                        <div id="push-notification-controls" class="push-controls" style="display: none;">
+                            <button class="btn btn-sm btn-primary" onclick="subscribeToPushNotifications()">
+                                <i class="fas fa-bell"></i> Enable Push Notifications
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="unsubscribeFromPushNotifications()">
+                                <i class="fas fa-bell-slash"></i> Disable Push Notifications
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="testPushNotification()">
+                                <i class="fas fa-paper-plane"></i> Test Notification
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -354,6 +374,7 @@
     </div>
 
     <script src="config.js"></script>
+    <script src="push-notifications.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

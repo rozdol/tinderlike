@@ -42,6 +42,11 @@ class Settings:
     
     # Frontend URL
     frontend_url: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    
+    # Push Notification Configuration (VAPID)
+    vapid_private_key: str = os.getenv("VAPID_PRIVATE_KEY", "")
+    vapid_public_key: str = os.getenv("VAPID_PUBLIC_KEY", "")
+    contact_email: str = os.getenv("CONTACT_EMAIL", "admin@tinderlike.com")
 
 
 settings = Settings()

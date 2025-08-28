@@ -11,6 +11,7 @@ class NotificationType(str, enum.Enum):
     SMS = "sms"
     WHATSAPP = "whatsapp"
     TELEGRAM = "telegram"
+    PUSH = "push"
 
 class OfferCategory(str, enum.Enum):
     ECOMMERCE = "ecommerce"
@@ -49,11 +50,13 @@ class User(Base):
     notify_sms = Column(Boolean, default=False)
     notify_whatsapp = Column(Boolean, default=False)
     notify_telegram = Column(Boolean, default=False)
+    notify_push = Column(Boolean, default=True)  # Push notifications
     telegram_chat_id = Column(String)
     
     # Relationships
     likes = relationship("UserLike", back_populates="user")
     notifications = relationship("Notification", back_populates="user")
+    push_subscriptions = relationship("PushSubscription", back_populates="user")
     admin_actions = relationship("AdminAction", back_populates="admin_user")
 
 
@@ -138,3 +141,19 @@ class AdminAction(Base):
     
     # Relationships
     admin_user = relationship("User", back_populates="admin_actions")
+
+
+class PushSubscription(Base):
+    __tablename__ = "push_subscriptions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    endpoint = Column(String, nullable=False)  # Push service endpoint
+    p256dh_key = Column(String, nullable=False)  # Public key for encryption
+    auth_token = Column(String, nullable=False)  # Auth token for encryption
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    is_active = Column(Boolean, default=True)
+    
+    # Relationships
+    user = relationship("User", back_populates="push_subscriptions")

@@ -20,6 +20,7 @@ class UserUpdate(BaseModel):
     notify_sms: Optional[bool] = None
     notify_whatsapp: Optional[bool] = None
     notify_telegram: Optional[bool] = None
+    notify_push: Optional[bool] = None
     telegram_chat_id: Optional[str] = None
 
 class UserResponse(UserBase):
@@ -34,6 +35,7 @@ class UserResponse(UserBase):
     notify_sms: bool
     notify_whatsapp: bool
     notify_telegram: bool
+    notify_push: bool
     telegram_chat_id: Optional[str] = None
 
     class Config:
@@ -52,6 +54,7 @@ class AdminUserUpdate(BaseModel):
     notify_sms: Optional[bool] = None
     notify_whatsapp: Optional[bool] = None
     notify_telegram: Optional[bool] = None
+    notify_push: Optional[bool] = None
     telegram_chat_id: Optional[str] = None
 
 class AdminUserResponse(UserResponse):
@@ -172,6 +175,21 @@ class NotificationResponse(BaseModel):
     message: str
     sent_at: datetime
     is_read: bool
+
+    class Config:
+        from_attributes = True
+
+# Push Notification schemas
+class PushSubscriptionCreate(BaseModel):
+    endpoint: str
+    keys: dict  # Contains p256dh and auth keys
+
+class PushSubscriptionResponse(BaseModel):
+    id: int
+    user_id: int
+    endpoint: str
+    is_active: bool
+    created_at: datetime
 
     class Config:
         from_attributes = True

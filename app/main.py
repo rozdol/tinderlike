@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.database import engine
 from app.models import Base
-from app.api import auth, offers, users, notifications, admin
+from app.api import auth, offers, users, notifications, admin, push_notifications
 from app.config import settings
 
 # Create database tables
@@ -30,6 +30,7 @@ app.include_router(offers.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
 app.include_router(notifications.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
+app.include_router(push_notifications.router, prefix="/api/v1/push", tags=["push-notifications"])
 
 
 @app.get("/")
